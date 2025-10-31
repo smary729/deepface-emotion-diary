@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📅 감정 히스토리</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            width: 95%;
+            max-width: 1000px;
+            padding: 30px;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {background: #f9f9f9;}
+
+        tr:hover {background: #f1f3ff;}
+
+        img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        th.col-emotion, td.col-emotion {width: 80px;}
+
+        td.col-diary {
+            width: auto;
+            text-align: left;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-edit {
+            background-color: #4dabf7;
+            color: white;
+        }
+
+        .btn-edit:hover {background-color: #339af0;}
+
+        .btn-delete {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {background-color: #fa5252;}
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            text-decoration: none;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .back-link:hover {text-decoration: underline;}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📅 나의 감정 히스토리</h1>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>이미지</th>
+                    <th class="col-emotion">감정</th>
+                    <th class="col-diary">일기</th>
+                    <th>업로드 시간</th>
+                    <th>관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>
+                        <img src="{{ url_for('static', filename='uploads/' + record.filename) }}" alt="이미지">
+                    </td>
+                    <td class="col-emotion">{{ record.emotion }}</td>
+                    <td class="col-diary">{{ record.diary or '' }}</td>
+                    <td>{{ record.upload_time }}</td>
+                    <td>
+                        <form action="{{ url_for('delete_record', record_id=record.id) }}" method="post"
+                              onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display:inline;">
+                            <button type="submit" class="btn btn-delete">삭제</button>
+                        </form>
+                        <a href="{{ url_for('edit_record', record_id=record.id) }}" class="btn btn-edit">수정</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="/" class="back-link">← 메인으로 돌아가기</a>
+    </div>
+</body>
+</html>

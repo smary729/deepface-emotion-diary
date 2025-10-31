@@ -1,0 +1,6 @@
+Flask==2.3.2
+deepface==0.0.90
+opencv-python==4.8.0.76
+numpy==1.26.0
+matplotlib==3.8.0
+tensorflow==2.15.0
