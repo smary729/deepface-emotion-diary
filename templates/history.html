@@ -115,6 +115,15 @@
     <div class="container">
         <h1>📅 나의 감정 히스토리</h1>
 
+        <form method="get">
+            <label for="date">조회 날짜 선택:</label>
+            <input type="date" id="date" name="date" value="{{ selected_date or '' }}">
+            <button type="submit">조회</button>
+            {% if selected_date %}
+                <a href="{{ url_for('history') }}">전체 기록 보기</a>
+            {% endif %}
+        </form>
+
         <table>
             <thead>
                 <tr>
@@ -129,22 +138,25 @@
                 {% for record in records %}
                 <tr>
                     <td>
-                        <img src="{{ url_for('static', filename='uploads/' + record.filename) }}" alt="이미지">
+                        <img src="{{ url_for('static', filename='uploads/' + record.filename) }}" alt="이미지" width="50">
                     </td>
                     <td class="col-emotion">{{ record.emotion }}</td>
                     <td class="col-diary">{{ record.diary or '' }}</td>
                     <td>{{ record.upload_time }}</td>
                     <td>
+                        <!-- 삭제 버튼 -->
                         <form action="{{ url_for('delete_record', record_id=record.id) }}" method="post"
-                              onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display:inline;">
+                            onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display:inline;">
                             <button type="submit" class="btn btn-delete">삭제</button>
                         </form>
+                        <!-- 수정 버튼 -->
                         <a href="{{ url_for('edit_record', record_id=record.id) }}" class="btn btn-edit">수정</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
 
         <a href="/" class="back-link">← 메인으로 돌아가기</a>
     </div>

@@ -61,13 +61,6 @@ def index():
                 dominant_emotion = max(emotions, key=emotions.get)
                 confidence = emotions[dominant_emotion]
 
-                # 슬픔 보정 로직 (neutral → sad)
-                if dominant_emotion == 'neutral':
-                    sad_prob = emotions.get('sad', 0)
-                    # 슬픔 확률이 꽤 높으면 슬픔으로 간주
-                    if sad_prob > 0.25:  # 25% 이상이면 슬픔으로
-                        dominant_emotion = 'sad'
-                        confidence = sad_prob
 
                 emotion_kr = EMOTION_KR.get(dominant_emotion, dominant_emotion)
                 result = f"분석 결과: {emotion_kr} (신뢰도: {confidence:.2f})"
@@ -117,22 +110,35 @@ def month_stats():
     return render_template('month_stats.html', stats=stats, years=years, 
                            selected_year=year, selected_month=month)
 
-# 오늘의 감정 히스토리 보기
-@app.route('/history')
+# 전체 히스토리 + 날짜 필터
+@app.route('/history', methods=['GET'])
 def history():
-    today = datetime.now().strftime("%Y-%m-%d")
+    selected_date = request.args.get('date')  # YYYY-MM-DD 형식
 
     conn = mysql.connector.connect(**DB_CONFIG)
     c = conn.cursor(dictionary=True)
-    c.execute(
-        "SELECT id, filename, emotion, diary, upload_time FROM emotion_records WHERE DATE(upload_time) = %s ORDER BY upload_time DESC",
-        (today,)
-    )
+
+    if selected_date:
+        # 선택한 날짜만 조회
+        c.execute(
+            "SELECT id, filename, emotion, diary, upload_time "
+            "FROM emotion_records "
+            "WHERE DATE(upload_time) = %s "
+            "ORDER BY upload_time DESC",
+            (selected_date,)
+        )
+    else:
+        # 전체 기록 조회
+        c.execute(
+            "SELECT id, filename, emotion, diary, upload_time "
+            "FROM emotion_records "
+            "ORDER BY upload_time DESC"
+        )
+
     records = c.fetchall()
     conn.close()
 
-    return render_template('history.html', date=today, records=records)
-
+    return render_template('history.html', records=records, selected_date=selected_date)
 
 # 일기 수정 (GET: 폼 표시, POST: 수정 저장)
 @app.route('/edit/<int:record_id>', methods=['GET', 'POST'])
